@@ -21,18 +21,30 @@ jobs:
       - name: Unzip Android Project
         run: unzip Malik_Textile_Barcode_Android_Project.zip
 
-      - name: Fix Java version
+      - name: Fix Android dependencies and code
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path("MalikTextileBarcodeAndroid/app/build.gradle")
-          s = p.read_text()
+
+          base = Path("MalikTextileBarcodeAndroid/app")
+
+          gradle = base / "build.gradle"
+          s = gradle.read_text()
           s = s.replace(
               "android {\n",
               "android {\n    compileOptions {\n        sourceCompatibility JavaVersion.VERSION_17\n        targetCompatibility JavaVersion.VERSION_17\n    }\n",
               1
           )
-          p.write_text(s)
+          s = s.replace(
+              "dependencies {\n",
+              "dependencies {\n    implementation 'androidx.core:core-ktx:1.15.0'\n",
+              1
+          )
+          gradle.write_text(s)
+
+          kt = base / "src/main/java/com/maliktextile/barcode/MainActivity.kt"
+          s = kt.read_text().replace("singleLine = true", "setSingleLine(true)")
+          kt.write_text(s)
           PY
 
       - name: Build APK
