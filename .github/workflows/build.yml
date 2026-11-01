@@ -21,6 +21,20 @@ jobs:
       - name: Unzip Android Project
         run: unzip Malik_Textile_Barcode_Android_Project.zip
 
+      - name: Fix Java version
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("MalikTextileBarcodeAndroid/app/build.gradle")
+          s = p.read_text()
+          s = s.replace(
+              "android {\n",
+              "android {\n    compileOptions {\n        sourceCompatibility JavaVersion.VERSION_17\n        targetCompatibility JavaVersion.VERSION_17\n    }\n",
+              1
+          )
+          p.write_text(s)
+          PY
+
       - name: Build APK
         run: gradle -p MalikTextileBarcodeAndroid assembleDebug
 
